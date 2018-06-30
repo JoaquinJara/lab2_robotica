@@ -1,3 +1,5 @@
+#include <LEANTEC_ControlMotor.h>
+
 /*
 * Ultrasonic Sensor HC-SR04 and Arduino Tutorial
 *
@@ -5,7 +7,7 @@
 * www.HowToMechatronics.com
 *
 */
-
+/*
 // defines pins numbers
 const int trigPin = 12;
 const int echoPin = 13;
@@ -41,3 +43,39 @@ Serial.print("Distance: ");
 Serial.println(distance);
 delay(500);
 }
+*/
+#include <LEANTEC_ControlMotor.h>//Incluimos la librería control de motores 
+// Configuramos los pines que vamos a usar
+ControlMotor control(9,8,11,10,5,6); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
+
+int velocidad=150;//Declaramos una variable para guardar la velocidad. 150 es la velocidad en la que empezará.
+
+void setup() 
+{ //En esta ocasión no necesitamos configurar pines ya que la librería lo hace.
+} 
+ 
+void loop() 
+{//Un motor gira en sentido horario y el otro antihorario
+//Si estuvierán montados en un robot el robot avanzaria. 
+ while(velocidad<254){
+ velocidad++;
+ control.Motor(velocidad,1); 
+ delay (200);}
+//Un motor gira en sentido horario y el otro antihorario
+//Si estuvierán montados en un robot el robot retrocedería. 
+  control.Motor(-180,1);
+  delay(3000);
+//Los dos motores giran en sentido horario.
+//Si estuvieran montados en un robot este giraria a la derecha. 
+  control.Motor(200,100);
+  delay(3000);
+//Los dos motores giran en sentido antihorario.
+//Si estuvieran montados en un robot este giraria a la derecha.  
+  control.Motor(200,-100);
+  delay(3000);
+//Los motores se paran.
+  control.Motor(0,1);
+  delay(3000);
+  
+  velocidad=150;//Reseteamos la velocidad
+  }
