@@ -22,6 +22,7 @@ ControlMotor control(MOTOR_DER_1, MOTOR_DER_2, MOTOR_IZQ_1, MOTOR_IZQ_2, PWM_DER
 #define N 0 // No explorado
 #define A 1 // Camino válido
 #define O 2 // Obstáculo
+#define R 3 // Usado para retorno
 
 // Direcciones
 #define NORTH 0
@@ -31,18 +32,23 @@ ControlMotor control(MOTOR_DER_1, MOTOR_DER_2, MOTOR_IZQ_1, MOTOR_IZQ_2, PWM_DER
 
 // defines variables
 long duration;
-int distance, angle, velocity = 100, i = 0,x = 0, y = 0, dir = EAST;
+int distance, angle, velocity = 100, i = 0,x = 0, y = 0, dir = WEST,inicioX=x,inicioY=y;
 bool exploring = true;
+bool reversing = false;
 
 // Cambiar según tamaño de la matriz
 int width = 10, height = 5;
+
+
 int matrix[5][10] = {
-  { N, N, N, O, O, O, O, N, N, N },
-  { O, O, N, O, O, O, O, N, O, N },
-  { O, O, N, O, N, N, N, N, O, N },
-  { O, O, N, N, N, O, O, N, O, N },
-  { O, O, O, O, O, O, O, N, N, N }
+  { A, N, N, O, O, O, O, O, O, O },
+  { O, O, N, N, O, O, O, O, O, O },
+  { O, O, O, O, O, O, O, O, O, O },
+  { O, O, O, O, O, O, O, O, O, O },
+  { O, O, O, O, O, O, O, O, O, O }
 };
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -51,8 +57,16 @@ void setup() {
 void loop() {
   distance = hcsr04.distanceInMillimeters();
   if(!exploring) {
-    // Si termino la exploración, finaliza el programa.
-    exit(0);
+    if(!reversing) reversing=true;
+    else{
+      exit(0);
+    }
+    // Si termino la exploración, empieza a regresar
+    delay(2000);
+    
+    reverseMap();
+    matrix[y][x]=A;
+    exploring=!mapExplored();
   } else if(distance <= CELL || isThereObstacle()) {
     // Si se detecta presencia de un objeto, se marca un obstáculo
     setObstacle();
@@ -66,6 +80,8 @@ void loop() {
     exploring = !mapExplored();
   }
 }
+
+
 
 /**
  * Indica si existe un obstáculo (conocido) en frente del vehículo.
@@ -226,4 +242,15 @@ bool mapExplored() {
       if(matrix[i][j] == N) return false;
   return true;
 }
+
+void reverseMap(){
+  for(int i = 0; i < height; i++)
+    for(int j = 0; j < width; j++)
+      if(matrix[i][j] == A) matrix[i][j]=N;
+}
+
+
+
+
+
 
